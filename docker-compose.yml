@@ -1,0 +1,28 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: callcenter_db
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  airflow:
+    image: apache/airflow:2.8.1-python3.9
+    restart: always
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__FERNET_KEY=Z-nLf2QREvHxkl1bqD5t5NypRJ5bTOGe7150-IHn88c=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - _PIP_ADDITIONAL_REQUIREMENTS=pandas mysql-connector-python
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/dags/scripts
+      - ./data:/opt/airflow/dags/data
+    ports:
+      - "8080:8080"
+    command: standalone
